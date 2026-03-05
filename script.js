@@ -60,6 +60,32 @@ document.addEventListener('DOMContentLoaded', () => {
             params: [
                 { name: 'Uric Acid', unit: 'mg/dL', normal: '3.5 - 7.2' }
             ]
+        },
+        'urea': {
+            name: 'وظائف كلى - يوريا (Urea/BUN)',
+            params: [
+                { name: 'Blood Urea', unit: 'mg/dL', normal: '15 - 45' },
+                { name: 'BUN', unit: 'mg/dL', normal: '7 - 20' }
+            ]
+        },
+        'crp': {
+            name: 'بروتين سي التفاعلي (CRP)',
+            params: [
+                { name: 'CRP', unit: 'mg/L', normal: '< 6.0' }
+            ]
+        },
+        'esr': {
+            name: 'سرعة ترسب الدم (ESR)',
+            params: [
+                { name: 'ESR (1st Hour)', unit: 'mm/hr', normal: '0 - 15' },
+                { name: 'ESR (2nd Hour)', unit: 'mm/hr', normal: '0 - 20' }
+            ]
+        },
+        'vit_d': {
+            name: 'فيتامين د (Vitamin D)',
+            params: [
+                { name: '25-OH Vitamin D', unit: 'ng/mL', normal: '30 - 100' }
+            ]
         }
     };
 
@@ -459,12 +485,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
         history.forEach(item => {
             const li = document.createElement('li');
-            li.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <strong style="color:var(--primary-color)">${item.analysisType}</strong>
-                    <div style="font-size: 14px; color: var(--text-muted);"><i class="fa-regular fa-calendar"></i> ${item.date}</div>
+
+            let tableRows = '';
+            item.results.forEach(res => {
+                tableRows += `
+                    <tr>
+                        <td style="padding:8px; border-bottom:1px solid var(--border-color); direction:ltr; text-align:left;">${res.name}</td>
+                        <td style="padding:8px; border-bottom:1px solid var(--border-color); font-weight:bold; color:var(--accent-color);">${res.value}</td>
+                        <td style="padding:8px; border-bottom:1px solid var(--border-color); direction:ltr; color:var(--text-muted);">${res.unit}</td>
+                        <td style="padding:8px; border-bottom:1px solid var(--border-color); direction:ltr; color:var(--text-muted);">${res.normal}</td>
+                    </tr>
+                `;
+            });
+
+            li.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding: 5px;" onclick="this.nextElementSibling.classList.toggle('hidden')">
+                    <div>
+                        <strong style="color:var(--primary-color)">${item.analysisType}</strong>
+                        <div style="font-size: 14px; color: var(--text-muted); margin-top:5px;"><i class="fa-regular fa-calendar"></i> ${item.date}</div>
+                    </div>
+                    <i class="fa-solid fa-chevron-down" style="color:var(--text-muted)"></i>
                 </div>
-            </div>`;
+                <div class="hidden" style="margin-top:15px; background:var(--background-color); padding:10px; border-radius:8px;">
+                    <table style="width:100%; border-collapse:collapse; font-size:14px; text-align:center;">
+                        <thead>
+                            <tr style="background:var(--sidebar-active); color: var(--text-color);">
+                                <th style="padding:8px; direction:ltr; text-align:left;">Test</th>
+                                <th style="padding:8px;">Result</th>
+                                <th style="padding:8px; direction:ltr; text-align:left;">Unit</th>
+                                <th style="padding:8px; direction:ltr; text-align:left;">Reference Range</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
+                </div>
+            `;
             historyList.appendChild(li);
         });
 
