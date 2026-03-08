@@ -560,42 +560,103 @@ select:focus {
 @media (max-width: 768px) {
     .app-container {
         flex-direction: column;
+        padding-bottom: 80px;
+        /* Space for bottom navigation */
     }
 
+    /* Transform Sidebar into Top Header & Bottom Nav */
     .sidebar {
         width: 100%;
-        padding: 1rem;
-        flex-direction: column;
+        padding: 1rem 1.5rem;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
         border-bottom: 1px solid var(--border-color);
         border-left: none;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    }
+
+    [data-theme="dark"] .sidebar {
+        background: rgba(45, 52, 54, 0.85);
     }
 
     .logo {
-        margin-bottom: 1rem;
-    }
-
-    .nav-menu {
-        flex-direction: row;
-        width: 100%;
-        justify-content: space-around;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .nav-item {
-        padding: 10px 15px;
-        justify-content: center;
-        flex: 1 1 auto;
-        text-align: center;
-        min-width: 120px;
+        margin-bottom: 0;
+        font-size: 22px;
     }
 
     .admin-toggle {
-        margin-top: 1rem;
-        width: 100%;
-        justify-content: center;
+        margin-top: 0;
+        padding: 5px 10px;
+        background: transparent;
+        font-size: 13px;
+        flex-direction: row-reverse;
+        gap: 8px;
     }
 
+    /* Fixed Bottom Navigation Menu */
+    .nav-menu {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        flex-direction: row;
+        background: var(--sidebar-bg);
+        border-top: 1px solid var(--border-color);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+        padding: 10px 15px;
+        padding-bottom: calc(10px + env(safe-area-inset-bottom));
+        z-index: 100;
+        justify-content: space-around;
+        gap: 5px;
+    }
+
+    .nav-item {
+        flex-direction: column;
+        padding: 8px 5px;
+        font-size: 11px;
+        gap: 6px;
+        justify-content: center;
+        align-items: center;
+        border-radius: 12px;
+        flex: 1;
+        min-width: 0;
+        text-align: center;
+        position: relative;
+    }
+
+    .nav-item i {
+        font-size: 22px;
+        margin-bottom: 2px;
+    }
+
+    .nav-item.active {
+        box-shadow: none;
+        background: rgba(11, 94, 125, 0.08);
+        /* subtle highlight */
+        color: var(--primary-color);
+    }
+
+    [data-theme="dark"] .nav-item.active {
+        background: rgba(78, 187, 228, 0.1);
+    }
+
+    .nav-item .badge {
+        position: absolute;
+        top: 2px;
+        right: 20%;
+        padding: 3px 6px;
+        font-size: 10px;
+        border: 2px solid var(--sidebar-bg);
+    }
+
+    /* Main Layout Tweaks */
     .main-content {
         padding: 1rem;
     }
@@ -604,60 +665,92 @@ select:focus {
         flex-direction: column;
         align-items: stretch;
         gap: 15px;
-        text-align: center;
+        margin-bottom: 1.5rem;
     }
 
     .top-header h1 {
         font-size: 24px;
-    }
-
-    .user-profile {
-        justify-content: center;
+        font-weight: 800;
+        color: var(--primary-color);
     }
 
     .search-container {
         margin: 0;
+        width: 100%;
         max-width: 100%;
+        border-radius: 16px;
+        background: var(--sidebar-bg);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .user-profile {
+        display: none;
+        /* Hide on mobile for cleaner look */
+    }
+
+    .glass-panel {
+        padding: 1.2rem;
+        border-radius: 16px;
+    }
+
+    /* Form UI Enhancements */
+    .form-section h2 {
+        font-size: 16px;
     }
 
     .form-row {
         grid-template-columns: 1fr;
+        gap: 12px;
     }
 
-    .input-group label {
-        font-size: 14px;
+    input,
+    select {
+        padding: 14px 15px;
+        font-size: 16px;
+        /* Font size 16px + prevents iOS zoom */
+        border-radius: 12px;
+        background: var(--sidebar-bg);
     }
 
     .btn {
         width: 100%;
+        padding: 16px;
+        border-radius: 12px;
+        font-size: 16px;
+        letter-spacing: 0.5px;
         justify-content: center;
-        padding: 15px;
-        font-size: 18px;
     }
 
     .parameter-item {
         flex-direction: column;
         align-items: stretch;
+        background: var(--sidebar-bg);
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        gap: 10px;
+    }
+
+    .parameter-item input {
+        width: 100%;
     }
 
     .data-table th,
     .data-table td {
-        padding: 10px 5px;
+        padding: 12px 10px;
         font-size: 14px;
         white-space: nowrap;
     }
 
     .modal-content {
+        padding: 20px 15px;
         width: 95%;
-        padding: 20px;
+        border-radius: 20px;
+        margin-bottom: 80px;
+        /* space from bottom nav */
     }
 
-    .patient-info-box p {
-        font-size: 14px;
-    }
-
-    /* Fixed submit button style for convenience */
-    .form-actions {
-        margin-top: 2rem;
+    .patient-history-list li {
+        padding: 10px;
     }
 }

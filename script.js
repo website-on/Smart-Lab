@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper to check risk
     function checkRisk(valueStr, normalStr) {
         const val = parseFloat(valueStr);
-        if (isNaN(val)) return false;
+        if (isNaN(val)) return { isAbnormal: false };
 
         const norm = normalStr.replace(/\s+/g, '');
         if (norm.includes('-')) {
@@ -282,21 +282,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 const min = parseFloat(parts[0]);
                 const max = parseFloat(parts[1]);
                 if (!isNaN(min) && !isNaN(max)) {
-                    return val < min || val > max;
+                    if (val < min) return { isAbnormal: true, type: 'low', diff: +(min - val).toFixed(2) };
+                    if (val > max) return { isAbnormal: true, type: 'high', diff: +(val - max).toFixed(2) };
                 }
             }
         } else if (norm.startsWith('>')) {
             const min = parseFloat(norm.substring(1));
             if (!isNaN(min)) {
-                return val <= min;
+                if (val <= min) return { isAbnormal: true, type: 'low', diff: +(min - val).toFixed(2) };
             }
         } else if (norm.startsWith('<')) {
             const max = parseFloat(norm.substring(1));
             if (!isNaN(max)) {
-                return val >= max;
+                if (val >= max) return { isAbnormal: true, type: 'high', diff: +(val - max).toFixed(2) };
             }
         }
-        return false;
+        return { isAbnormal: false };
     }
 
     // Auto Formatter for Phone
@@ -400,10 +401,11 @@ document.addEventListener('DOMContentLoaded', () => {
             let riskAlerts = [];
 
             entry.results.forEach(res => {
-                const isAbnormal = checkRisk(res.value, res.normal);
-                if (isAbnormal) {
+                const risk = checkRisk(res.value, res.normal);
+                if (risk.isAbnormal) {
                     hasRisk = true;
-                    riskAlerts.push(`⚠️ ${res.name}: ${res.value} ${res.unit} (طبيعي: ${res.normal})`);
+                    let riskDesc = risk.type === 'high' ? `مرتفعة بمقدار ${risk.diff}` : `منخفضة بمقدار ${risk.diff}`;
+                    riskAlerts.push(`⚠️ ${res.name}: ${res.value} ${res.unit} (النتيجة ${riskDesc} عن المعدل الطبيعي)`);
                 }
                 reportMsg += `- ${res.name}: ${res.value} ${res.unit}\n`;
             });
@@ -414,13 +416,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (hasRisk) {
                 msg += `🚨 *تنبيه هام:* تم رصد نتائج خارج المعدل الطبيعي:\n`;
-                msg += riskAlerts.join('\n') + `\n`;
+                msg += riskAlerts.join('\n') + `\n\n`;
                 msg += `يُرجى مراجعة الطبيب المختص لتقييم الحالة وتوجيهكم بشكل سليم.\n\n`;
             } else {
                 msg += `✅ جميع النتائج تقع ضمن المعدل الطبيعي ولله الحمد.\n\n`;
             }
 
-            msg += `📌 *ملاحظة هامة:* يرجى إرفاق وإرسال ملف التقرير (PDF) الذي تم تحميله للتو على جهازك في هذه المحادثة لحفظه في سجلك.\n\n`;
             msg += `مع خالص تمنياتنا لكم بدوام الصحة والعافية. 🤍\n- SmartLab`;
 
             const waUrl = `https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`;
