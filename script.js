@@ -270,6 +270,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Helper to check risk
+    function checkRisk(valueStr, normalStr) {
+        const val = parseFloat(valueStr);
+        if (isNaN(val)) return false;
+
+        const norm = normalStr.replace(/\s+/g, '');
+        if (norm.includes('-')) {
+            const parts = norm.split('-');
+            if (parts.length === 2) {
+                const min = parseFloat(parts[0]);
+                const max = parseFloat(parts[1]);
+                if (!isNaN(min) && !isNaN(max)) {
+                    return val < min || val > max;
+                }
+            }
+        } else if (norm.startsWith('>')) {
+            const min = parseFloat(norm.substring(1));
+            if (!isNaN(min)) {
+                return val <= min;
+            }
+        } else if (norm.startsWith('<')) {
+            const max = parseFloat(norm.substring(1));
+            if (!isNaN(max)) {
+                return val >= max;
+            }
+        }
+        return false;
+    }
+
     // Auto Formatter for Phone
     function formatPhoneNumber(phone) {
         let formatted = phone.trim();
@@ -366,8 +395,31 @@ document.addEventListener('DOMContentLoaded', () => {
             const formattedPhone = formatPhoneNumber(entry.patientPhone);
             const waPhone = formattedPhone.replace('+', '');
 
+            let reportMsg = `*تقرير النتائج:*\n`;
+            let hasRisk = false;
+            let riskAlerts = [];
+
+            entry.results.forEach(res => {
+                const isAbnormal = checkRisk(res.value, res.normal);
+                if (isAbnormal) {
+                    hasRisk = true;
+                    riskAlerts.push(`⚠️ ${res.name}: ${res.value} ${res.unit} (طبيعي: ${res.normal})`);
+                }
+                reportMsg += `- ${res.name}: ${res.value} ${res.unit}\n`;
+            });
+
             let msg = `مرحباً بك ${entry.patientName}، 🩺\n\n`;
             msg += `مرفق لسيادتكم من "${entry.institution}" نتيجة تحليل (${entry.analysisType}) الخاص بكم، بتاريخ: ${entry.date}.\n\n`;
+            msg += `${reportMsg}\n`;
+
+            if (hasRisk) {
+                msg += `🚨 *تنبيه هام:* تم رصد نتائج خارج المعدل الطبيعي:\n`;
+                msg += riskAlerts.join('\n') + `\n`;
+                msg += `يُرجى مراجعة الطبيب المختص لتقييم الحالة وتوجيهكم بشكل سليم.\n\n`;
+            } else {
+                msg += `✅ جميع النتائج تقع ضمن المعدل الطبيعي ولله الحمد.\n\n`;
+            }
+
             msg += `📌 *ملاحظة هامة:* يرجى إرفاق وإرسال ملف التقرير (PDF) الذي تم تحميله للتو على جهازك في هذه المحادثة لحفظه في سجلك.\n\n`;
             msg += `مع خالص تمنياتنا لكم بدوام الصحة والعافية. 🤍\n- SmartLab`;
 
